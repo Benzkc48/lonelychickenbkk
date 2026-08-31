@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>S45</title>
+
+<!-- ไอคอนหน้าจอโฮม: iPhone/iPad -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="S45">
+
+<!-- ไอคอนหน้าจอโฮม: Android/Chrome -->
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#060a08">
+
+<link rel="icon" type="image/png" href="favicon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@600;700;800&family=Sarabun:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#060a08;
+    --panel:#0e1512;
+    --border:#1c2b24;
+    --mint:#3EE8A8;
+    --mint-dim:#2BB889;
+    --text:#EAFBF3;
+    --muted:#7c9186;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html, body{
+    margin:0; padding:0; height:100%; width:100%;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Sarabun',sans-serif;
+    overflow:hidden;
+  }
+  #app{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+    height:100dvh;
+    width:100%;
+  }
+
+  /* --- Tab bar --- */
+  #tabbar{
+    display:flex;
+    flex-shrink:0;
+    background:var(--panel);
+    border-bottom:1px solid var(--border);
+    padding-top:env(safe-area-inset-top);
+    position:relative;
+    z-index:10;
+  }
+  .tab-btn{
+    flex:1;
+    border:none;
+    background:transparent;
+    color:var(--muted);
+    font-family:'Kanit',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    padding:16px 10px;
+    min-height:52px;
+    cursor:pointer;
+    touch-action:manipulation;
+    border-bottom:3px solid transparent;
+    transition:color .15s, border-color .15s;
+  }
+  .tab-btn.active{
+    color:var(--mint);
+    border-bottom-color:var(--mint);
+  }
+
+  /* --- Panels --- */
+  #panels{
+    position:relative;
+    flex:1;
+    min-height:0;
+  }
+  .panel{
+    position:absolute;
+    inset:0;
+    display:none;
+  }
+  .panel.active{
+    display:block;
+  }
+
+  iframe{
+    border:none;
+    width:100%;
+    height:100%;
+    display:block;
+  }
+
+  #loader{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--bg);
+    color:var(--muted);
+    font-family:sans-serif;
+    font-size:14px;
+    flex-direction:column;
+    gap:14px;
+  }
+  #loader img{ width:56px; opacity:.9; }
+  .spin{
+    width:22px; height:22px;
+    border:3px solid var(--border);
+    border-top-color:var(--mint);
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* --- Sheet panel --- */
+  #panel-sheet{
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    padding-bottom:calc(24px + env(safe-area-inset-bottom));
+    background:
+      radial-gradient(ellipse 900px 500px at 85% 110%, rgba(62,232,168,.10), transparent 60%),
+      radial-gradient(ellipse 700px 400px at 10% -10%, rgba(62,232,168,.06), transparent 60%),
+      var(--bg);
+  }
+  #panel-sheet.active{ display:flex; }
+
+  .card{
+    width:100%;
+    max-width:400px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:40px 30px;
+    text-align:center;
+    box-shadow:0 0 0 1px rgba(62,232,168,.05), 0 20px 60px rgba(0,0,0,.5), 0 0 40px rgba(62,232,168,.06);
+  }
+  .logo{
+    width:88px;
+    margin-bottom:20px;
+    border-radius:20px;
+    box-shadow:0 0 0 1px var(--border), 0 0 24px rgba(62,232,168,.18);
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:2px;
+    color:var(--mint);
+    margin:0 0 6px;
+  }
+  h1{
+    font-family:'Kanit',sans-serif;
+    font-weight:700;
+    font-size:22px;
+    margin:0 0 10px;
+  }
+  p.desc{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.6;
+    margin:0 0 28px;
+  }
+  a.open-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+    background:var(--mint);
+    color:#04231a;
+    text-decoration:none;
+    font-family:'Kanit',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    padding:15px 20px;
+    border-radius:10px;
+    transition:transform .1s, background .15s;
+    touch-action:manipulation;
+  }
+  a.open-btn:hover{ background:#63f0bd; }
+  a.open-btn:active{ transform:scale(.98); background:var(--mint-dim); }
+
+  .hint{
+    margin-top:18px;
+    font-size:12px;
+    color:#565a6b;
+    line-height:1.6;
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <div id="tabbar">
+    <button class="tab-btn active" data-tab="submit" onclick="switchTab('submit')">📤 ส่งงาน</button>
+    <button class="tab-btn" data-tab="sheet" onclick="switchTab('sheet')">📊 ดูชีต</button>
+  </div>
+
+  <div id="panels">
+
+    <!-- แท็บ 1: ฟอร์มส่งงาน -->
+    <div id="panel-submit" class="panel active">
+      <div id="loader">
+        <img src="icon-192.png" alt="โลโก้">
+        <div class="spin"></div>
+        <span>กำลังโหลด...</span>
+      </div>
+
+      <!--
+        แก้ตรงนี้: ใส่ Web app URL ของ Apps Script คุณ (ลิงก์ .../exec)
+        ถ้า deploy เวอร์ชันใหม่แบบ "New version" ลิงก์นี้จะไม่เปลี่ยน ไม่ต้องแก้ไฟล์นี้อีก
+      -->
+      <iframe
+        id="appFrame"
+        src="https://script.google.com/macros/s/AKfycbzbXW_DDJAieVQyi56MMT7V02oqU773i13DL5gnhDxW1OkY8Xy29BmpGJgDExI-Myfg/exec"
+        onload="document.getElementById('loader').style.display='none'"
+        allow="clipboard-write"
+      ></iframe>
+    </div>
+
+    <!-- แท็บ 2: ดูชีตข้อมูล -->
+    <div id="panel-sheet" class="panel">
+      <div class="card">
+        <img class="logo" src="icon-192.png" alt="S45 logo">
+        <p class="eyebrow">// WORK LOG</p>
+        <h1>ชีตข้อมูลงานที่ส่ง</h1>
+        <p class="desc">บันทึกงานทั้งหมดที่ส่งผ่านระบบ Video editor ส่งงานแล้ว แยกตามเดือนอัตโนมัติ</p>
+
+        <a class="open-btn" href="https://docs.google.com/spreadsheets/d/1VXyo_3HUCSWyVRSlwgcRmMZvYtsLWlL6MctC2TWg55o/edit" target="_blank" rel="noopener">
+          เปิด Google Sheet ↗
+        </a>
+
+        <p class="hint">ต้องล็อกอินด้วยบัญชี Google ที่มีสิทธิ์เข้าถึงชีตนี้อยู่แล้ว</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function switchTab(name){
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+  }
+</script>
+
+</body>
+</html>
